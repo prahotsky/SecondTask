@@ -1,3 +1,9 @@
+$container-height: 95vh;
+$primary-blue: #0071CD;
+$secondary-blue: #89BCE7;
+$background-grey: #FAFAFA;
+
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -6,25 +12,28 @@
 }
 
 .container {
-  width: 53.4375vh;
-  height: 95vh;
+  width: $container-height * 9 / 16;
+  height: $container-height;
   position: absolute;
   left: 0;
   right: 0;
   top: 2.5vh;
   margin: auto;
-  background: #FAFAFA;
+  background: $background-grey;
   border-radius: 10px;
 }
 
 .header {
   height: 16%;
   width: 100%;
-  background: #0071CD;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+  background: $primary-blue;
+  border: {
+    top: {
+      left-radius: 10px;
+      right-radius: 10px;
+    };
+  };
 }
-
 .main {
   overflow: auto;
   height: 84%;
@@ -32,8 +41,12 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  border-bottom-right-radius: 10px;
-  border-bottom-left-radius: 10px;
+  border: {
+    bottom: {
+      right-radius: 10px;
+      left-radius: 10px;
+    };
+  };
 }
 
 .main::-webkit-scrollbar {
@@ -74,16 +87,16 @@
 }
 
 .caption {
-  margin-left: 5%;
-  margin-top: 7%;
-  margin-bottom: 5%;
+  margin: {
+    left: 5%;
+    top: 7%;
+    bottom: 5%;
+  };
+  p:first-child {
+    font-weight: bold;
+  }
+  p:last-child {
+    color: grey;
+    font-size: 12px;
+  }
 }
-.caption p:first-child {
-  font-weight: bold;
-}
-.caption p:last-child {
-  color: grey;
-  font-size: 12px;
-}
-
-/*# sourceMappingURL=style.css.map */
