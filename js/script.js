@@ -1,26 +1,206 @@
-$(document).ready(function() {
-    $.get( "https://api.github.com/repos/thomasdavis/backbonetutorials/contributors", function( data ) {
-        data.forEach(function(item) {
-            showItems(item);
-        });
+let contributorsArr = [];
+let groupedArr = [];
+
+$(document).ready(() => {
+    $.get("https://api.github.com/repos/thomasdavis/backbonetutorials/contributors", data => {
+        contributorsArr = data;
+        groupedArr = data;
+        sortData();
+        showItems(data);
     });
+    listenSelect();
+    listenSort();
+    listenItems();
 });
 
-function showItems(item) {
+function showItems(data) {
+    $("#mainItemWrapper").empty();
+    data.forEach(item => {
+        let $avatar = $("<img></img>")
+            .addClass("avatar")
+            .attr("src", item.avatar_url);
+        let $login = $("<p></p>").html(item.login);
+        let $contributions = $("<p></p>").html("Contributions: " + item.contributions);
+        let $caption = $("<div></div>")
+            .addClass("caption")
+            .append($login)
+            .append($contributions);
+        let $contactCard = $("<div></div>")
+            .addClass("main-item")
+            .append($avatar)
+            .append($caption);
 
-    let $avatar = $("<div></div>").addClass("avatar");
-    let $login = $("<p></p>").html(item.login);
-    let $contributions = $("<p></p>").html("Contributions: " + item.contributions);
-    let $caption = $("<div></div>")
-        .addClass("caption")
-        .append($login)
-        .append($contributions);
-    let $contactCard = $("<div></div>")
-        .addClass("main-item")
-        .append($avatar)
-        .append($caption);
-    $avatar.css("background", "url(" + item.avatar_url + ") no-repeat").css("background-size", "contain");
-    $(".main-item-wrapper").append($contactCard);
+        $("#mainItemWrapper")
+            .append($contactCard)
+            .fadeIn(300);
+    })
+
+}
+
+function listenSelect() {
+    $("#selectContainer").on("click", event => {
+        activateBtn(event.target);
+    });
+}
+
+function activateBtn(target) {
+
+    [].forEach.call($("#selectContainer").children(), item => {
+        item.className = "btn-wrapper";
+    });
+    while (target != $("#selectContainer")) {
+        if (target.className === "btn-wrapper") {
+            target.classList.add("btn-active");
+            groupingContributors(target);
+            return;
+        }
+        target = target.parentNode;
+    }
+}
+
+let selectedBtn = "1";
+
+function groupingContributors(target) {
+    if (selectedBtn === target.id) {
+        return;
+    }
+    selectedBtn = target.id;
+    switch (target.id) {
+        case "1":
+            groupedArr = contributorsArr;
+            sortData();
+
+            showItems(groupedArr);
+            break;
+        case "2":
+            groupedArr = contributorsArr.filter(item => item.contributions > 10);
+            sortData();
+            showItems(groupedArr);
+            break;
+        case "3":
+            groupedArr = contributorsArr.filter(item => (item.contributions >= 2 && item.contributions <= 10));
+            sortData();
+            showItems(groupedArr);
+            break;
+        case "4":
+            groupedArr = contributorsArr.filter(item => (item.contributions >= 1 && item.contributions < 2));
+            sortData();
+            showItems(groupedArr);
+            break;
+    }
 }
 
 
+function listenSort() {
+    $("#sortBtn").on("click", () => {
+        alphabeticallySorted = !alphabeticallySorted;
+        sortData();
+    });
+}
+
+let alphabeticallySorted = true;
+
+function sortData() {
+    document.getElementById("mainItemWrapper").style.display = "none";
+    if (!alphabeticallySorted) {
+        groupedArr.sort((a, b) => {
+            if (a.login.toLowerCase() < b.login.toLowerCase()) return 1;
+            if (a.login.toLowerCase() > b.login.toLowerCase()) return -1;
+        });
+    } else if (alphabeticallySorted) {
+        groupedArr.sort((a, b) => {
+            if (a.login.toLowerCase() > b.login.toLowerCase()) return 1;
+            if (a.login.toLowerCase() < b.login.toLowerCase()) return -1;
+        });
+    }
+    reverseSortBtn();
+    showItems(groupedArr);
+}
+
+function reverseSortBtn() {
+    if (alphabeticallySorted) {
+        $("#sortBtn").attr("src", "resources/sort.png");
+    }
+    if (!alphabeticallySorted) {
+        $("#sortBtn").attr("src", "resources/reverse-sort.png");
+    }
+}
+
+function listenItems() {
+    $("#mainItemWrapper").on("click", event => {
+        getItem(event.target);
+    })
+}
+
+function getItem(target) {
+    while (target != $("#mainItemWrapper")[0]) {
+        if (target.className === "main-item") {
+            getMoreInfo(target.lastChild.firstChild.innerText);
+            return;
+        }
+        target = target.parentNode;
+    }
+}
+
+function getMoreInfo(name) {
+    $.get("https://api.github.com/users/" + name, data => {
+       showPopUp(data);
+    });
+}
+
+function showPopUp(data) {
+    $("#popUpWrapper").empty();
+    let $avatar = $("<img>")
+        .addClass("pop-up-avatar")
+        .attr("src", data.avatar_url);
+    let $closeTab = $("<img>")
+        .addClass("close-tab")
+        .attr("src", "resources/close.png");
+    let $login = $("<p></p>").html(data.login);
+    let $name;
+    if (data.name) {
+        $name = $("<p></p>").html("Name: " + data.name);
+    }
+    let $company;
+    if (data.company) {
+        $company = $("<p></p>").html("Company: " + data.company);
+    }
+    let $location;
+    if (data.location) {
+        $location = $("<p></p>").html("Location: " + data.location);
+    }
+    let $email;
+    if (data.email) {
+        $email = $("<p></p>").html("E-mail: " + data.email);
+    }
+    let $popUpInfo = $("<div></div>")
+        .addClass("pop-up-info")
+        .append($login)
+        .append($name)
+        .append($company)
+        .append($location)
+        .append($email);
+    let $popUp = $("<div></div>")
+        .addClass("pop-up")
+        .append($avatar)
+        .append($closeTab)
+        .append($popUpInfo);
+        $("#popUpWrapper")
+        .append($popUp).fadeIn(200);
+        listenClosePopup();
+}
+
+function listenClosePopup() {
+    $("#popUpWrapper").on("click", event => {
+    if (event.target.id === "popUpWrapper") {
+        closePopUp()
+    }
+    })
+    $(".close-tab").on("click", () => {
+        closePopUp()
+    })
+}
+
+function closePopUp() {
+    $("#popUpWrapper").fadeOut(200);
+}

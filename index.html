@@ -8,10 +8,22 @@
     <script src="js/script.js"></script>
 </head>
 <body>
-<div class="container">
-    <header class="header"></header>
+<div class="container" id="container">
+    <header class="header" id="header">
+        <p class="header-title">Contacts</p>
+        <div class="controls">
+            <div class="select-container" id="selectContainer">
+                <div class="btn-wrapper btn-active" id="1"><img class="btn" src="resources/all.png"></div>
+                <div class="btn-wrapper" id="2"><img class="btn" src="resources/gold.png"></div>
+                <div class="btn-wrapper" id="3"><img class="btn" src="resources/silver.png"></div>
+                <div class="btn-wrapper" id="4"><img class="btn" src="resources/bronze.png"></div>
+            </div>
+            <img class="sort-btn" id="sortBtn" src="resources/sort.png">
+        </div>
+    </header>
+    <div class="pop-up-wrapper" id="popUpWrapper"></div>
     <main class="main">
-        <div class="main-item-wrapper"></div>
+        <div class="main-item-wrapper" id="mainItemWrapper"></div>
     </main>
 </div>
 </body>
