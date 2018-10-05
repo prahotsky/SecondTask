@@ -5,7 +5,6 @@ const apiUserLink = "https://api.github.com/users/";
 const errorMsg = "Oops.. Some problems with connection";
 let selectedBtn = "1";
 
-
 $(document).ready(() => {
     $.get(apiLink, data => {
         contributorsArr = data;
