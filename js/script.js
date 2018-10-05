@@ -1,22 +1,41 @@
 let contributorsArr = [];
 let groupedArr = [];
+const apiLink = "https://api.github.com/repos/thomasdavis/backbonetutorials/contributors";
+const apiUserLink = "https://api.github.com/users/";
+const errorMsg = "Oops.. Some problems with connection";
+let selectedBtn = "1";
+
 
 $(document).ready(() => {
-    $.get("https://api.github.com/repos/thomasdavis/backbonetutorials/contributors", data => {
+    $.get(apiLink, data => {
         contributorsArr = data;
         groupedArr = data;
         sortData();
         showItems(data);
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR);
+        console.log(textStatus);
+        console.log(errorThrown);
+        showErrMsg($("#mainItemWrapper"));
     });
+
     listenSelect();
     listenSort();
     listenItems();
 });
 
+function showErrMsg(parent) {
+    parent.empty();
+    let $errMsg = $("<div></div>")
+        .addClass("err-msg")
+        .html(errorMsg);
+    $(parent[0]).append($errMsg);
+}
+
 function showItems(data) {
     $("#mainItemWrapper").empty();
     data.forEach(item => {
-        let $avatar = $("<img></img>")
+        let $avatar = $("<img>")
             .addClass("avatar")
             .attr("src", item.avatar_url);
         let $login = $("<p></p>").html(item.login);
@@ -58,8 +77,6 @@ function activateBtn(target) {
     }
 }
 
-let selectedBtn = "1";
-
 function groupingContributors(target) {
     if (selectedBtn === target.id) {
         return;
@@ -69,7 +86,6 @@ function groupingContributors(target) {
         case "1":
             groupedArr = contributorsArr;
             sortData();
-
             showItems(groupedArr);
             break;
         case "2":
@@ -89,7 +105,6 @@ function groupingContributors(target) {
             break;
     }
 }
-
 
 function listenSort() {
     $("#sortBtn").on("click", () => {
@@ -143,20 +158,32 @@ function getItem(target) {
 }
 
 function getMoreInfo(name) {
-    $.get("https://api.github.com/users/" + name, data => {
-       showPopUp(data);
+    $.get(apiUserLink + name, data => {
+        showPopUp(data);
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR);
+        console.log(textStatus);
+        console.log(errorThrown);
+        showPopUp([]);
+        showErrMsg($(".pop-up"))
     });
 }
 
 function showPopUp(data) {
     $("#popUpWrapper").empty();
-    let $avatar = $("<img>")
-        .addClass("pop-up-avatar")
-        .attr("src", data.avatar_url);
+    let $avatar;
+    if (data.avatar_url) {
+        $avatar = $("<img>")
+            .addClass("pop-up-avatar")
+            .attr("src", data.avatar_url);
+    }
     let $closeTab = $("<img>")
         .addClass("close-tab")
         .attr("src", "resources/close.png");
-    let $login = $("<p></p>").html(data.login);
+    let $login;
+    if (data.login) {
+        $login = $("<p></p>").html(data.login);
+    }
     let $name;
     if (data.name) {
         $name = $("<p></p>").html("Name: " + data.name);
@@ -185,19 +212,19 @@ function showPopUp(data) {
         .append($avatar)
         .append($closeTab)
         .append($popUpInfo);
-        $("#popUpWrapper")
+    $("#popUpWrapper")
         .append($popUp).fadeIn(200);
-        listenClosePopup();
+    listenClosePopup();
 }
 
 function listenClosePopup() {
     $("#popUpWrapper").on("click", event => {
-    if (event.target.id === "popUpWrapper") {
-        closePopUp()
-    }
+        if (event.target.id === "popUpWrapper") {
+            closePopUp();
+        }
     })
     $(".close-tab").on("click", () => {
-        closePopUp()
+        closePopUp();
     })
 }
 
